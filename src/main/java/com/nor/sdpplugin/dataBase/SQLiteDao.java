@@ -69,6 +69,22 @@ public class SQLiteDao {
         }
     }
 
+    public void insertIntoRequests(String reqID, String json) {
+        try {
+            if (connection == null)
+                connection = getConnection(url);
+            if (connection == null)
+                throw new SQLException("connection is null");
+//            Statement statement = connection.createStatement();
+            PreparedStatement statement = connection.prepareStatement("insert into request(reqID_SDP, inoutJSON)values(?,?)");
+            statement.setString(1, reqID);
+            statement.setString(2, json);
+            statement.execute();
+        } catch (Exception e) {
+            e.toString();
+        }
+    }
+
     public void insertLog(String reqID_SDP, String reqID_JIRA, String inoutJSON, String outputJSON) {
         try {
             if (connection == null)
