@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/medanet")
+@RequestMapping("/api")
 public class RespinaController {
 
     private static final Logger logger = LoggerFactory.getLogger(RespinaController.class);
@@ -79,6 +79,7 @@ public class RespinaController {
         } catch (Exception e) {
             responseModel.setErrorCode(100);
             responseModel.setResponseMessage("Internal Error");
+            logger.error(e.toString());
             return new ResponseEntity<>(responseModel, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

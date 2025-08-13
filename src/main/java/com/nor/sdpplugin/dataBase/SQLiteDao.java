@@ -1,9 +1,12 @@
 package com.nor.sdpplugin.dataBase;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+@Slf4j
 public class SQLiteDao {
     private Connection connection;
     //    private String url = "jdbc:sqlite:db/db.callSDP";
@@ -21,6 +24,7 @@ public class SQLiteDao {
 
     private Connection getConnection(String connectionUrl) throws SQLException, Exception {
         try {
+            Class.forName("org.sqlite.JDBC");
             Connection connection = DriverManager.getConnection(connectionUrl);
             return connection;
         } catch (SQLException e) {
@@ -65,6 +69,7 @@ public class SQLiteDao {
             boolean execute = statement.execute(query);
             return String.valueOf(execute);
         } catch (Exception e) {
+            log.error(e.toString());
             return e.toString();
         }
     }
@@ -84,20 +89,17 @@ public class SQLiteDao {
             e.toString();
         }
     }
-    public void insertIntoRequestsFromTelsi(String phone, int reaction) {
-        try {
-            if (connection == null)
-                connection = getConnection(url);
-            if (connection == null)
-                throw new SQLException("connection is null");
+
+    public void insertIntoRequestsFromTelsi(String phone, int reaction) throws Exception {
+        if (connection == null)
+            connection = getConnection(url);
+        if (connection == null)
+            throw new SQLException("connection is null");
 //            Statement statement = connection.createStatement();
-            PreparedStatement statement = connection.prepareStatement("insert into requestFromTelsi(phone, reaction)values(?,?)");
-            statement.setString(1, phone);
-            statement.setInt(2, reaction);
-            statement.execute();
-        } catch (Exception e) {
-            e.toString();
-        }
+        PreparedStatement statement = connection.prepareStatement("insert into requestFromTelsi(phone, reaction)values(?,?)");
+        statement.setString(1, phone);
+        statement.setInt(2, reaction);
+        statement.execute();
     }
 
     public void insertLog(String reqID_SDP, String reqID_JIRA, String inoutJSON, String outputJSON) {
