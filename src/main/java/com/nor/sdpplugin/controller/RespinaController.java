@@ -1,79 +1,85 @@
 package com.nor.sdpplugin.controller;
 
 import com.nor.sdpplugin.dataBase.SQLiteDao;
-import com.nor.sdpplugin.model.AddRequest_InputModel;
-import com.nor.sdpplugin.model.AddToJiraModel;
-import com.nor.sdpplugin.model.Response;
-import com.nor.sdpplugin.model.UpdateJiraModel;
-import com.nor.sdpplugin.other.Utils;
-import com.nor.sdpplugin.service.AddRequestService;
-import com.nor.sdpplugin.service.Jira;
-import com.nor.sdpplugin.service.RequestService;
+import com.nor.sdpplugin.model.*;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.PushBuilder;
-import org.json.JSONArray;
+import jdk.jshell.Snippet;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.server.DelegatingServerHttpResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/medanet")
 public class RespinaController {
 
     private static final Logger logger = LoggerFactory.getLogger(RespinaController.class);
 
     @PostMapping("/callCenter")
-    public String callCenter(@RequestBody String str, HttpServletRequest httpServletRequest) throws Exception {
+    public ResponseEntity<String> callCenter(@RequestBody String str, HttpServletRequest httpServletRequest) {
         logger.info("Calling api/v1/callCenter service from ip address: {}\t\tJson:{}", httpServletRequest.getRemoteAddr(), str);
 
-
-
-        String requestID, templateName, requesterMobile;
-        JSONObject obj = new JSONObject(str);
-        if (obj.has("requestID"))
-            requestID = obj.getString("requestID");
-        else
-            return "your request doesn't have requestID";
-
-        if (obj.has("template")) {
-            JSONObject templateObj = new JSONObject(obj.getString("template"));
-            if (templateObj.has("name"))
-                templateName = templateObj.getString("name");
+        try {
+            String requestID, templateName, requesterMobile;
+            JSONObject obj = new JSONObject(str);
+            if (obj.has("requestID"))
+                requestID = obj.getString("requestID");
             else
-                return "your request doesn't have name";
-        } else
-            return "your request doesn't have template";
+                return new ResponseEntity<>("your request doesn't have requestID", HttpStatus.BAD_REQUEST);
+            if (obj.has("template")) {
+                JSONObject templateObj = new JSONObject(obj.getString("template"));
+                if (templateObj.has("name"))
+                    templateName = templateObj.getString("name");
+                else
+                    return new ResponseEntity<>("your request doesn't have name", HttpStatus.BAD_REQUEST);
+            } else
+                return new ResponseEntity<>("your request doesn't have template", HttpStatus.BAD_REQUEST);
 
-        if (obj.has("requester")) {
-            JSONObject requesterObj = new JSONObject(obj.getString("requester"));
-            if (requesterObj.has("mobile"))
-                requesterMobile = requesterObj.getString("mobile");
-            else
-                return "your request doesn't have mobile";
-        } else
-            return "your request doesn't have requester";
+            if (obj.has("requester")) {
+                JSONObject requesterObj = new JSONObject(obj.getString("requester"));
+                if (requesterObj.has("mobile"))
+                    requesterMobile = requesterObj.getString("mobile");
+                else
+                    return new ResponseEntity<>("your request doesn't have mobile", HttpStatus.BAD_REQUEST);
+            } else
+                return new ResponseEntity<>("your request doesn't have requester", HttpStatus.BAD_REQUEST);
 
 
-        System.out.println("Template Name: " + templateName);
-        System.out.println("Requester mobile: " + requesterMobile);
+            System.out.println("Template Name: " + templateName);
+            System.out.println("Requester mobile: " + requesterMobile);
 //        System.out.println("Requester Name: " + requesterObj.getString("name"));
-        System.out.println("requestID: " + requestID);
+            System.out.println("requestID: " + requestID);
 
-        SQLiteDao sqLiteDao = new SQLiteDao();
-        sqLiteDao.insertIntoRequests(requestID, str);
+            SQLiteDao sqLiteDao = new SQLiteDao();
+            sqLiteDao.insertIntoRequestsFromSDP(requestID, str);
 
-        return ("Done");
+            return new ResponseEntity<>("Done", HttpStatus.OK);
 
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/customer-reaction")
+    public ResponseEntity<ResponseModel> customerReaction(@RequestBody CustomerReaction customerReaction, HttpServletRequest httpServletRequest) throws Exception {
+        logger.info("Calling api/v1/customer-reaction service from ip address: {}\t\tJson:{}", httpServletRequest.getRemoteAddr(), customerReaction.toString());
+        ResponseModel responseModel = new ResponseModel();
+        try {
+            System.out.println(customerReaction);
+            SQLiteDao sqLiteDao = new SQLiteDao();
+            sqLiteDao.insertIntoRequestsFromTelsi(customerReaction.getMobile(), customerReaction.getReaction());
+            responseModel.setResponseMessage("Success");
+            return new ResponseEntity<>(responseModel, HttpStatus.OK);
+        } catch (Exception e) {
+            responseModel.setErrorCode(100);
+            responseModel.setResponseMessage("Internal Error");
+            return new ResponseEntity<>(responseModel, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

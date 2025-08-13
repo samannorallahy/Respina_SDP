@@ -15,7 +15,7 @@ public class AppConfigController {
 
     @PostMapping("/db")
     public String configSDP(@RequestBody String str, HttpServletRequest httpServletRequest) {
-        logger.info("Calling api/config/addNewFields service from ip address: {}\t\tinput:{}", httpServletRequest.getRemoteAddr(), str);
+        logger.info("Calling api/config/db service from ip address: {}\t\tinput:{}", httpServletRequest.getRemoteAddr(), str);
         SQLiteDao sqLiteDao = new SQLiteDao();
         String result;
         result = sqLiteDao.executeQuery(str);

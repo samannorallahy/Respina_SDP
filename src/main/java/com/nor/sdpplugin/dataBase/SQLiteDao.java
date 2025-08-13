@@ -69,16 +69,31 @@ public class SQLiteDao {
         }
     }
 
-    public void insertIntoRequests(String reqID, String json) {
+    public void insertIntoRequestsFromSDP(String reqID, String json) {
         try {
             if (connection == null)
                 connection = getConnection(url);
             if (connection == null)
                 throw new SQLException("connection is null");
 //            Statement statement = connection.createStatement();
-            PreparedStatement statement = connection.prepareStatement("insert into request(reqID_SDP, inoutJSON)values(?,?)");
+            PreparedStatement statement = connection.prepareStatement("insert into requestFromSDP(reqID_SDP, inoutJSON)values(?,?)");
             statement.setString(1, reqID);
             statement.setString(2, json);
+            statement.execute();
+        } catch (Exception e) {
+            e.toString();
+        }
+    }
+    public void insertIntoRequestsFromTelsi(String phone, int reaction) {
+        try {
+            if (connection == null)
+                connection = getConnection(url);
+            if (connection == null)
+                throw new SQLException("connection is null");
+//            Statement statement = connection.createStatement();
+            PreparedStatement statement = connection.prepareStatement("insert into requestFromTelsi(phone, reaction)values(?,?)");
+            statement.setString(1, phone);
+            statement.setInt(2, reaction);
             statement.execute();
         } catch (Exception e) {
             e.toString();
