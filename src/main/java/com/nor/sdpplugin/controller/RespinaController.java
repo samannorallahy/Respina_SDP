@@ -2,6 +2,9 @@ package com.nor.sdpplugin.controller;
 
 import com.nor.sdpplugin.dataBase.SQLiteDao;
 import com.nor.sdpplugin.model.*;
+import com.nor.sdpplugin.service.AddRequestService;
+import com.nor.sdpplugin.service.RespinaService;
+import com.nor.sdpplugin.service.Telsi;
 import jakarta.servlet.http.HttpServletRequest;
 import jdk.jshell.Snippet;
 import org.json.JSONObject;
@@ -15,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 @RestController
 @RequestMapping("/api")
 public class RespinaController {
@@ -24,43 +30,46 @@ public class RespinaController {
     @PostMapping("/callCenter")
     public ResponseEntity<String> callCenter(@RequestBody String str, HttpServletRequest httpServletRequest) {
         logger.info("Calling api/v1/callCenter service from ip address: {}\t\tJson:{}", httpServletRequest.getRemoteAddr(), str);
-
+        String templateName, requesterMobile;
+        int requestID;
         try {
-            String requestID, templateName, requesterMobile;
             JSONObject obj = new JSONObject(str);
+
             if (obj.has("requestID"))
-                requestID = obj.getString("requestID");
-            else
-                return new ResponseEntity<>("your request doesn't have requestID", HttpStatus.BAD_REQUEST);
+                requestID = Integer.parseInt(obj.getString("requestID"));
+            else {
+                logger.error("there is no requestID in this request");
+                return new ResponseEntity<>("there is no requestID in this request", HttpStatus.BAD_REQUEST);
+            }
+
             if (obj.has("template")) {
-                JSONObject templateObj = new JSONObject(obj.getString("template"));
-                if (templateObj.has("name"))
-                    templateName = templateObj.getString("name");
-                else
-                    return new ResponseEntity<>("your request doesn't have name", HttpStatus.BAD_REQUEST);
-            } else
+                templateName = obj.getString("template");
+            } else {
+                logger.error("your request doesn't have template");
                 return new ResponseEntity<>("your request doesn't have template", HttpStatus.BAD_REQUEST);
+            }
 
             if (obj.has("requester")) {
                 JSONObject requesterObj = new JSONObject(obj.getString("requester"));
                 if (requesterObj.has("mobile"))
                     requesterMobile = requesterObj.getString("mobile");
-                else
+                else {
+                    logger.error("your request doesn't have requester.mobile");
                     return new ResponseEntity<>("your request doesn't have mobile", HttpStatus.BAD_REQUEST);
-            } else
+                }
+            } else {
+                logger.error("your request doesn't have requester");
                 return new ResponseEntity<>("your request doesn't have requester", HttpStatus.BAD_REQUEST);
+            }
 
+//            System.out.println("Template Name: " + templateName);
+//            System.out.println("Requester mobile: " + requesterMobile);
+////        System.out.println("Requester Name: " + requesterObj.getString("name"));
+//            System.out.println("requestID: " + requestID);
 
-            System.out.println("Template Name: " + templateName);
-            System.out.println("Requester mobile: " + requesterMobile);
-//        System.out.println("Requester Name: " + requesterObj.getString("name"));
-            System.out.println("requestID: " + requestID);
-
-            SQLiteDao sqLiteDao = new SQLiteDao();
-            sqLiteDao.insertIntoRequestsFromSDP(requestID, str);
-
+            RespinaService service = new RespinaService();
+            boolean insert = service.insert(requestID, templateName, requesterMobile, str);
             return new ResponseEntity<>("Done", HttpStatus.OK);
-
         } catch (Exception e) {
             return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
         }
@@ -75,6 +84,21 @@ public class RespinaController {
             SQLiteDao sqLiteDao = new SQLiteDao();
             sqLiteDao.insertIntoRequestsFromTelsi(customerReaction.getMobile(), customerReaction.getReaction());
             responseModel.setResponseMessage("Success");
+            String reqID_SDP = "";
+            int id = 0;
+            ArrayList<HashMap<String, String>> records = sqLiteDao.findMobileNumber(customerReaction.getMobile());
+            if (!records.isEmpty()) {
+                reqID_SDP = records.get(0).get("REQID_SDP");
+                id = Integer.parseInt(records.get(0).get("ID"));
+            }
+            System.out.println(reqID_SDP);
+            sqLiteDao.updateCalledFromTelsi(id, customerReaction.getReaction());
+
+            if (customerReaction.getReaction() == 1) {
+                AddRequestService service = new AddRequestService();
+                Response response = service.putCallSdpUpdateStatus(reqID_SDP);
+                System.out.println(response);
+            }
             return new ResponseEntity<>(responseModel, HttpStatus.OK);
         } catch (Exception e) {
             responseModel.setErrorCode(100);
@@ -82,5 +106,11 @@ public class RespinaController {
             logger.error(e.toString());
             return new ResponseEntity<>(responseModel, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PostMapping("/test2")
+    public String test2(@RequestBody String str, HttpServletRequest httpServletRequest) {
+        logger.info("{}{}", httpServletRequest.getRemoteAddr(), str);
+        return ("<h1>Hello World!</h1>");
     }
 }

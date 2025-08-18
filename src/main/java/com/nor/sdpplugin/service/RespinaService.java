@@ -1,0 +1,48 @@
+package com.nor.sdpplugin.service;
+
+import com.nor.sdpplugin.dataBase.SQLiteDao;
+import com.nor.sdpplugin.model.Response;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+@Slf4j
+
+public class RespinaService {
+    public boolean insert(int requestID, String templateName, String requesterMobile, String inputJson) {
+        SQLiteDao sqLiteDao = new SQLiteDao();
+        boolean canCallTelsi = false;
+        try {
+            ArrayList<HashMap<String, String>> requestId = sqLiteDao.findRequestId(requestID);
+            if (requestId != null && !requestId.isEmpty()) {
+                log.info("already created a request with id {}", requestID);
+                if (templateName.equals("Keyboard problem")) {
+                    sqLiteDao.updateTemplateChanged(requestID, requesterMobile, 1);
+                    canCallTelsi = true;
+                }
+            } else {
+                if (templateName.isEmpty())
+                    sqLiteDao.insertIntoRequestsFromSDP(requestID, requesterMobile, inputJson, 0);
+                else {
+                    sqLiteDao.insertIntoRequestsFromSDP(requestID, requesterMobile, inputJson, 1);
+                    canCallTelsi = true;
+                }
+            }
+            if (canCallTelsi) {
+                log.info("Change Request Status");
+                AddRequestService service = new AddRequestService();
+                Response response = service.putCallSdpUpdateStatus(String.valueOf(requestID));
+            } else log.info("can not call telsi");
+
+//            Telsi telsi = new Telsi();
+//            String telsiResult = telsi.callTelsi(requesterMobile);
+            return true;
+        } catch (Exception e) {
+            log.error(e.toString());
+            return false;
+        }
+    }
+}

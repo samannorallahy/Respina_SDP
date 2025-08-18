@@ -22,7 +22,7 @@ public class ServiceDeskPlus {
     private String serviceAddress;
     private String authtoken;
     @Getter
-    private StatusModel statusNameForJiraUpdate;
+    private StatusModel statusNameForUpdateTo;
 
     public ServiceDeskPlus() {
 //        serviceAddress = "http://localhost:8080";
@@ -42,7 +42,7 @@ public class ServiceDeskPlus {
 //            list.forEach(System.out::println);
             serviceAddress = list.get(0).get("SERVICEADDRESS");
             authtoken = list.get(0).get("AUTHTOKEN");
-            statusNameForJiraUpdate = new StatusModel(list.get(0).get("STATUSNAMEFORJIRAUPDATE"));
+            statusNameForUpdateTo = new StatusModel(list.get(0).get("STATUSNAMEFORUPDATETO"));
         } catch (Exception e) {
             System.out.println(e);
             System.exit(1);

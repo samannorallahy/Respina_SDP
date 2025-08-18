@@ -59,6 +59,99 @@ public class SQLiteDao {
         }
     }
 
+    public ArrayList<HashMap<String, String>> findMobileNumber(String mobileNo) throws Exception {
+        try {
+            ArrayList<HashMap<String, String>> list = new ArrayList();
+            if (connection == null)
+                connection = getConnection(url);
+            if (connection == null)
+                throw new SQLException("connection is null");
+
+//            Statement statement = connection.createStatement();
+            String query = "select * from requestFromSDP where mobileNo = ? and calledFromTelsi is null";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, mobileNo);
+            statement.execute();
+            ResultSet resultSet = statement.getResultSet();
+            int columnsCount = resultSet.getMetaData().getColumnCount();
+            while (resultSet.next()) {
+                HashMap<String, String> tmpStr = new HashMap();
+                for (int i = 1; i <= columnsCount; i++) {
+                    tmpStr.put(resultSet.getMetaData().getColumnName(i).toUpperCase(), resultSet.getString(i));
+                }
+                list.add(tmpStr);
+            }
+            return list;
+        } catch (Exception e) {
+            throw new Exception(e.toString());
+        }
+    }
+
+    public ArrayList<HashMap<String, String>> findRequestId(int requestId) throws Exception {
+        try {
+            ArrayList<HashMap<String, String>> list = new ArrayList();
+            if (connection == null)
+                connection = getConnection(url);
+            if (connection == null)
+                throw new SQLException("connection is null");
+
+//            Statement statement = connection.createStatement();
+            String query = "select * from requestFromSDP where reqID_SDP = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, requestId);
+            statement.execute();
+            ResultSet resultSet = statement.getResultSet();
+            int columnsCount = resultSet.getMetaData().getColumnCount();
+            while (resultSet.next()) {
+                HashMap<String, String> tmpStr = new HashMap();
+                for (int i = 1; i <= columnsCount; i++)
+                    tmpStr.put(resultSet.getMetaData().getColumnName(i).toUpperCase(), resultSet.getString(i));
+                list.add(tmpStr);
+            }
+            return list;
+        } catch (Exception e) {
+            throw new Exception(e.toString());
+        }
+    }
+
+    public void updateCalledFromTelsi(int id, int reaction) throws Exception {
+        try {
+            ArrayList<HashMap<String, String>> list = new ArrayList();
+            if (connection == null)
+                connection = getConnection(url);
+            if (connection == null)
+                throw new SQLException("connection is null");
+
+//            Statement statement = connection.createStatement();
+            String query = "update requestFromSDP set customerReaction = ? where id = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, reaction);
+            statement.setInt(2, id);
+            statement.execute();
+        } catch (Exception e) {
+            throw new Exception(e.toString());
+        }
+    }
+
+    public void updateTemplateChanged(int reqID_SDP, String requesterMobile, int templateChanged) throws Exception {
+        try {
+            ArrayList<HashMap<String, String>> list = new ArrayList();
+            if (connection == null)
+                connection = getConnection(url);
+            if (connection == null)
+                throw new SQLException("connection is null");
+
+            String query = "update requestFromSDP set templateChanged = ? , mobileNo = ? where reqID_SDP = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, templateChanged);
+            statement.setString(2, requesterMobile);
+            statement.setInt(3, reqID_SDP);
+            statement.execute();
+        } catch (Exception e) {
+            throw new Exception(e.toString());
+        }
+    }
+
     public String executeQuery(String query) {
         try {
             if (connection == null)
@@ -74,20 +167,22 @@ public class SQLiteDao {
         }
     }
 
-    public void insertIntoRequestsFromSDP(String reqID, String json) {
-        try {
-            if (connection == null)
-                connection = getConnection(url);
-            if (connection == null)
-                throw new SQLException("connection is null");
+    public void insertIntoRequestsFromSDP(int reqID, String MobileNo, String json, int templateChanged) throws Exception {
+//        try {
+        if (connection == null)
+            connection = getConnection(url);
+        if (connection == null)
+            throw new SQLException("connection is null");
 //            Statement statement = connection.createStatement();
-            PreparedStatement statement = connection.prepareStatement("insert into requestFromSDP(reqID_SDP, inoutJSON)values(?,?)");
-            statement.setString(1, reqID);
-            statement.setString(2, json);
-            statement.execute();
-        } catch (Exception e) {
-            e.toString();
-        }
+        PreparedStatement statement = connection.prepareStatement("insert into requestFromSDP(reqID_SDP,mobileNo, inoutJSON,templateChanged)values(?,?,?,?)");
+        statement.setInt(1, reqID);
+        statement.setString(2, MobileNo);
+        statement.setString(3, json);
+        statement.setInt(4, templateChanged);
+        statement.execute();
+//        } catch (Exception e) {
+//            log.error(e.toString());
+//        }
     }
 
     public void insertIntoRequestsFromTelsi(String phone, int reaction) throws Exception {
