@@ -3,8 +3,6 @@ package com.nor.sdpplugin.service;
 import com.nor.sdpplugin.dataBase.SQLiteDao;
 import com.nor.sdpplugin.model.Response;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +10,7 @@ import java.util.HashMap;
 @Slf4j
 
 public class RespinaService {
-    public boolean insert(int requestID, String templateName, String requesterMobile, String inputJson) {
+    public boolean insertIntoRequests(int requestID, String templateName, String requesterMobile, String inputJson) {
         SQLiteDao sqLiteDao = new SQLiteDao();
         boolean canCallTelsi = false;
         try {
@@ -34,7 +32,7 @@ public class RespinaService {
             if (canCallTelsi) {
                 log.info("Change Request Status");
                 AddRequestService service = new AddRequestService();
-                Response response = service.putCallSdpUpdateStatus(String.valueOf(requestID));
+                Response response = service.putCallSdpUpdateStatusAfterCalling(String.valueOf(requestID));
             } else log.info("can not call telsi");
 
 //            Telsi telsi = new Telsi();

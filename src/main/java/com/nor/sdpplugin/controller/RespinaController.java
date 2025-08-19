@@ -4,14 +4,11 @@ import com.nor.sdpplugin.dataBase.SQLiteDao;
 import com.nor.sdpplugin.model.*;
 import com.nor.sdpplugin.service.AddRequestService;
 import com.nor.sdpplugin.service.RespinaService;
-import com.nor.sdpplugin.service.Telsi;
 import jakarta.servlet.http.HttpServletRequest;
-import jdk.jshell.Snippet;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -68,7 +65,7 @@ public class RespinaController {
 //            System.out.println("requestID: " + requestID);
 
             RespinaService service = new RespinaService();
-            boolean insert = service.insert(requestID, templateName, requesterMobile, str);
+            boolean insert = service.insertIntoRequests(requestID, templateName, requesterMobile, str);
             return new ResponseEntity<>("Done", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
@@ -96,7 +93,7 @@ public class RespinaController {
 
             if (customerReaction.getReaction() == 1) {
                 AddRequestService service = new AddRequestService();
-                Response response = service.putCallSdpUpdateStatus(reqID_SDP);
+                Response response = service.putCallSdpUpdateStatusAfterCalling(reqID_SDP);
                 System.out.println(response);
             }
             return new ResponseEntity<>(responseModel, HttpStatus.OK);

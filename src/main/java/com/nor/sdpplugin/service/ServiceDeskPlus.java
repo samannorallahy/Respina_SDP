@@ -3,7 +3,6 @@ package com.nor.sdpplugin.service;
 import com.nor.sdpplugin.dataBase.SQLiteDao;
 import com.nor.sdpplugin.model.Response;
 import com.nor.sdpplugin.model.StatusModel;
-import com.nor.sdpplugin.other.Utils;
 import lombok.Getter;
 import okhttp3.*;
 import org.slf4j.Logger;
@@ -22,7 +21,8 @@ public class ServiceDeskPlus {
     private String serviceAddress;
     private String authtoken;
     @Getter
-    private StatusModel statusNameForUpdateTo;
+    private StatusModel statusNameForCalling;
+    private StatusModel statusNameForClosing;
 
     public ServiceDeskPlus() {
 //        serviceAddress = "http://localhost:8080";
@@ -42,7 +42,8 @@ public class ServiceDeskPlus {
 //            list.forEach(System.out::println);
             serviceAddress = list.get(0).get("SERVICEADDRESS");
             authtoken = list.get(0).get("AUTHTOKEN");
-            statusNameForUpdateTo = new StatusModel(list.get(0).get("STATUSNAMEFORUPDATETO"));
+            statusNameForCalling = new StatusModel(list.get(0).get("STATUSNAMEFORCALLING"));
+            statusNameForClosing = new StatusModel(list.get(0).get("STATUSNAMEFORCLOSING"));
         } catch (Exception e) {
             System.out.println(e);
             System.exit(1);

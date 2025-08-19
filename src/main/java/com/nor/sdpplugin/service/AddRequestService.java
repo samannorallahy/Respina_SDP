@@ -10,11 +10,11 @@ import java.io.IOException;
 
 @Service
 public class AddRequestService {
-    public Response putCallSdpUpdateStatus(String id) throws IOException {
+    public Response putCallSdpUpdateStatusAfterCalling(String id) throws IOException {
         Response sdpResponse = new Response();
         ServiceDeskPlus serviceDeskPlus = new ServiceDeskPlus();
         UpdateRequest request = new UpdateRequest();
-        StatusModel statusModel = serviceDeskPlus.getStatusNameForUpdateTo();
+        StatusModel statusModel = serviceDeskPlus.getStatusNameForCalling();
         RequestForUpdate requestForUpdate = new RequestForUpdate();
 //        requestForUpdate.setRequester(new Requester(id));
         requestForUpdate.setStatus(statusModel);
