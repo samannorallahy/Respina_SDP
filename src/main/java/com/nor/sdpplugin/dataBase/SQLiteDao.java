@@ -68,7 +68,7 @@ public class SQLiteDao {
                 throw new SQLException("connection is null");
 
 //            Statement statement = connection.createStatement();
-            String query = "select * from requestFromSDP where mobileNo = ? and calledFromTelsi is null";
+            String query = "select * from requestFromSDP where mobileNo = ? and customerReaction is null";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, mobileNo);
             statement.execute();

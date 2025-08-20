@@ -84,8 +84,12 @@ public class RespinaController {
             if (!records.isEmpty()) {
                 reqID_SDP = records.get(0).get("REQID_SDP");
                 id = Integer.parseInt(records.get(0).get("ID"));
+                logger.info("reqID_SDP: {} and id: {}", reqID_SDP, id);
             }
-            logger.info("reqID_SDP: {}", reqID_SDP);
+            else {
+                logger.info("there is no requestID in requests with mobile: {} and customerReaction: null", customerReaction.getMobile());
+                return new ResponseEntity<>(responseModel, HttpStatus.OK);
+            }
             sqLiteDao.updateCalledFromTelsi(id, customerReaction.getReaction());
             //todo:
 //            if (customerReaction.getReaction() == 1) {
