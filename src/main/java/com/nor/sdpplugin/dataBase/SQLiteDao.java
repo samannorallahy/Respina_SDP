@@ -140,7 +140,7 @@ public class SQLiteDao {
                 connection = getConnection(url);
             if (connection == null)
                 throw new SQLException("connection is null");
-
+            log.info("update requestFromSDP set templateChanged = " + templateChanged + " , mobileNo = " + requesterMobile + " where reqID_SDP = " + reqID_SDP);
             String query = "update requestFromSDP set templateChanged = ? , mobileNo = ? where reqID_SDP = ?";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setInt(1, templateChanged);
@@ -174,6 +174,7 @@ public class SQLiteDao {
         if (connection == null)
             throw new SQLException("connection is null");
 //            Statement statement = connection.createStatement();
+        log.info("insert into requestFromSDP(reqID_SDP,mobileNo, inoutJSON,templateChanged)values(" + reqID + "," + MobileNo + ", ? ," + templateChanged + ")");
         PreparedStatement statement = connection.prepareStatement("insert into requestFromSDP(reqID_SDP,mobileNo, inoutJSON,templateChanged)values(?,?,?,?)");
         statement.setInt(1, reqID);
         statement.setString(2, MobileNo);

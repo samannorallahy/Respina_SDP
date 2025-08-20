@@ -31,14 +31,12 @@ public class RespinaController {
         int requestID;
         try {
             JSONObject obj = new JSONObject(str);
-
             if (obj.has("requestID"))
                 requestID = Integer.parseInt(obj.getString("requestID"));
             else {
                 logger.error("there is no requestID in this request");
                 return new ResponseEntity<>("there is no requestID in this request", HttpStatus.BAD_REQUEST);
             }
-
             if (obj.has("template")) {
                 templateName = obj.getString("template");
             } else {
@@ -77,7 +75,6 @@ public class RespinaController {
         logger.info("Calling api/v1/customer-reaction service from ip address: {}\t\tJson:{}", httpServletRequest.getRemoteAddr(), customerReaction.toString());
         ResponseModel responseModel = new ResponseModel();
         try {
-            System.out.println(customerReaction);
             SQLiteDao sqLiteDao = new SQLiteDao();
             sqLiteDao.insertIntoRequestsFromTelsi(customerReaction.getMobile(), customerReaction.getReaction());
             responseModel.setResponseMessage("Success");
@@ -88,14 +85,14 @@ public class RespinaController {
                 reqID_SDP = records.get(0).get("REQID_SDP");
                 id = Integer.parseInt(records.get(0).get("ID"));
             }
-            System.out.println(reqID_SDP);
+            logger.info("reqID_SDP: {}", reqID_SDP);
             sqLiteDao.updateCalledFromTelsi(id, customerReaction.getReaction());
-
-            if (customerReaction.getReaction() == 1) {
-                AddRequestService service = new AddRequestService();
-                Response response = service.putCallSdpUpdateStatusAfterCalling(reqID_SDP);
-                System.out.println(response);
-            }
+            //todo:
+//            if (customerReaction.getReaction() == 1) {
+//                AddRequestService service = new AddRequestService();
+//                Response response = service.putCallSdpUpdateStatusAfterCalling(reqID_SDP);
+//                System.out.println(response);
+//            }
             return new ResponseEntity<>(responseModel, HttpStatus.OK);
         } catch (Exception e) {
             responseModel.setErrorCode(100);

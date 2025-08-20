@@ -8,32 +8,31 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 @Slf4j
-
 public class RespinaService {
     public boolean insertIntoRequests(int requestID, String templateName, String requesterMobile, String inputJson) {
         SQLiteDao sqLiteDao = new SQLiteDao();
-        boolean canCallTelsi = false;
+        boolean canChangeStatus = false;
         try {
             ArrayList<HashMap<String, String>> requestId = sqLiteDao.findRequestId(requestID);
             if (requestId != null && !requestId.isEmpty()) {
                 log.info("already created a request with id {}", requestID);
                 if (templateName.equals("Keyboard problem")) {
                     sqLiteDao.updateTemplateChanged(requestID, requesterMobile, 1);
-                    canCallTelsi = true;
+                    canChangeStatus = true;
                 }
             } else {
-                if (templateName.isEmpty())
+                if (templateName.isEmpty()) {
                     sqLiteDao.insertIntoRequestsFromSDP(requestID, requesterMobile, inputJson, 0);
-                else {
+                } else {
                     sqLiteDao.insertIntoRequestsFromSDP(requestID, requesterMobile, inputJson, 1);
-                    canCallTelsi = true;
+                    canChangeStatus = true;
                 }
             }
-            if (canCallTelsi) {
-                log.info("Change Request Status");
+            if (canChangeStatus) {
+                log.info("Changing Request Status");
                 AddRequestService service = new AddRequestService();
                 Response response = service.putCallSdpUpdateStatusAfterCalling(String.valueOf(requestID));
-            } else log.info("can not call telsi");
+            } else log.info("can't Changing Request Status");
 
 //            Telsi telsi = new Telsi();
 //            String telsiResult = telsi.callTelsi(requesterMobile);
