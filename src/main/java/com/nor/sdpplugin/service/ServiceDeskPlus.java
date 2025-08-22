@@ -22,6 +22,7 @@ public class ServiceDeskPlus {
     private String authtoken;
     @Getter
     private StatusModel statusNameForCalling;
+    @Getter
     private StatusModel statusNameForClosing;
 
     public ServiceDeskPlus() {

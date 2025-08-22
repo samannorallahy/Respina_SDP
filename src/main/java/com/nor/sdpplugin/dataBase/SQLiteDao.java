@@ -114,6 +114,28 @@ public class SQLiteDao {
         }
     }
 
+    public boolean templateExistInDB(String str) throws Exception {
+        try {
+            ArrayList<HashMap<String, String>> list = new ArrayList();
+            if (connection == null)
+                connection = getConnection(url);
+            if (connection == null)
+                throw new SQLException("connection is null");
+
+//            Statement statement = connection.createStatement();
+            String query = "select name from templates";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.execute();
+            ResultSet resultSet = statement.getResultSet();
+            while (resultSet.next()) {
+                return resultSet.getString(1).equals(str);
+            }
+            return false;
+        } catch (Exception e) {
+            throw new Exception(e.toString());
+        }
+    }
+
     public void updateCalledFromTelsi(int id, int reaction) throws Exception {
         try {
             ArrayList<HashMap<String, String>> list = new ArrayList();
@@ -126,6 +148,25 @@ public class SQLiteDao {
             String query = "update requestFromSDP set customerReaction = ? where id = ?";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setInt(1, reaction);
+            statement.setInt(2, id);
+            statement.execute();
+        } catch (Exception e) {
+            throw new Exception(e.toString());
+        }
+    }
+
+    public void update_callCustomer(int id) throws Exception {
+        try {
+            ArrayList<HashMap<String, String>> list = new ArrayList();
+            if (connection == null)
+                connection = getConnection(url);
+            if (connection == null)
+                throw new SQLException("connection is null");
+
+//            Statement statement = connection.createStatement();
+            String query = "update requestFromSDP set callCustomer = ? where id = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, 1);
             statement.setInt(2, id);
             statement.execute();
         } catch (Exception e) {
