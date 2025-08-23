@@ -24,8 +24,8 @@ public class RespinaController {
 
     private static final Logger logger = LoggerFactory.getLogger(RespinaController.class);
 
-    @PostMapping("/callCenter")
-    public ResponseEntity<String> callCenter(@RequestBody String str, HttpServletRequest httpServletRequest) {
+    @PostMapping("/add-to-requests")
+    public ResponseEntity<String> addToRequests(@RequestBody String str, HttpServletRequest httpServletRequest) {
         logger.info("Calling api/v1/callCenter service from ip address: {}\t\tJson:{}", httpServletRequest.getRemoteAddr(), str);
         String templateName, requesterMobile;
         int requestID;
@@ -70,22 +70,6 @@ public class RespinaController {
         }
     }
 
-    @PostMapping("/customer-reaction")
-    public ResponseEntity<ResponseModel> customerReaction(@RequestBody CustomerReaction customerReaction, HttpServletRequest httpServletRequest) throws Exception {
-        logger.info("Calling api/v1/customer-reaction service from ip address: {}\t\tJson:{}", httpServletRequest.getRemoteAddr(), customerReaction.toString());
-        ResponseModel responseModel = new ResponseModel();
-        try {
-           RespinaService service = new RespinaService();
-           service.customerReaction(customerReaction);
-            return new ResponseEntity<>(responseModel, HttpStatus.OK);
-        } catch (Exception e) {
-            responseModel.setErrorCode(100);
-            responseModel.setResponseMessage("Internal Error");
-            logger.error(e.toString());
-            return new ResponseEntity<>(responseModel, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @PostMapping("/call-customer")
     public ResponseEntity<ResponseModel> callCustomer(@RequestBody String str, HttpServletRequest httpServletRequest) {
         logger.info("Calling api/v1/call-customer service from ip address: {}\t\tJson:{}", httpServletRequest.getRemoteAddr(), str);
@@ -104,6 +88,22 @@ public class RespinaController {
         boolean b = service.callCustomer(requestID);
 
         return new ResponseEntity<>(responseModel, HttpStatus.OK);
+    }
+
+    @PostMapping("/customer-reaction")
+    public ResponseEntity<ResponseModel> customerReaction(@RequestBody CustomerReaction customerReaction, HttpServletRequest httpServletRequest) throws Exception {
+        logger.info("Calling api/v1/customer-reaction service from ip address: {}\t\tJson:{}", httpServletRequest.getRemoteAddr(), customerReaction.toString());
+        ResponseModel responseModel = new ResponseModel();
+        try {
+            RespinaService service = new RespinaService();
+            service.customerReaction(customerReaction);
+            return new ResponseEntity<>(responseModel, HttpStatus.OK);
+        } catch (Exception e) {
+            responseModel.setErrorCode(100);
+            responseModel.setResponseMessage("Internal Error");
+            logger.error(e.toString());
+            return new ResponseEntity<>(responseModel, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/test2")

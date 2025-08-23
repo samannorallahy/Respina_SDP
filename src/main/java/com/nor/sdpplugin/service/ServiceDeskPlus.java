@@ -125,7 +125,7 @@ public class ServiceDeskPlus {
         return new Response(response.code(), outPut, "", null, "", "", "");
     }
 
-    public Response putCallSdpUpdateStatus(String id, String input_data) throws IOException {
+    public Response putCallSdpUpdateStatus(String id, String input_data, int type) throws IOException {
         String outPut = "";
 
 //        OkHttpClient client = new OkHttpClient().newBuilder()
@@ -143,13 +143,16 @@ public class ServiceDeskPlus {
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("input_data", input_data)
                 .build();
+        String addres = serviceAddress + "/api/v3/requests/" + id;
+        if (type == 3)
+            addres = addres + "/worklogs";
         Request request = new Request.Builder()
-                .url(serviceAddress + "/api/v3/requests/" + id)
-                .method("PUT", body)
+                .url(addres)
+                .method(type == 3 ? "POST" : "PUT", body)
                 .addHeader("authtoken", authtoken)
                 .addHeader("Accept", "application/vnd.manageengine.sdp.v3+json")
                 .build();
-        logger.info("Calling put service: {} ,\t input_data:{}", serviceAddress + "/api/v3/requests/" + id, input_data);
+        logger.info("Calling {} service: {} ,\t input_data:{}", addres, type == 3 ? "POST" : "PUT", input_data);
         okhttp3.Response response = client.newCall(request).execute();
 
 //        if (response.code() == 200)

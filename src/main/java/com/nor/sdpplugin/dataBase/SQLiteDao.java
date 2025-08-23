@@ -68,7 +68,9 @@ public class SQLiteDao {
                 throw new SQLException("connection is null");
 
 //            Statement statement = connection.createStatement();
-            String query = "select * from requestFromSDP where mobileNo = ? and customerReaction is null";
+            String query = "select * from requestFromSDP where mobileNo = ? and customerReaction is null and callCustomer is null";
+            log.info("select * from requestFromSDP where mobileNo = " + mobileNo + " and customerReaction is null and callCustomer is null");
+
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, mobileNo);
             statement.execute();
@@ -97,6 +99,8 @@ public class SQLiteDao {
 
 //            Statement statement = connection.createStatement();
             String query = "select * from requestFromSDP where reqID_SDP = ?";
+            log.info("select * from requestFromSDP where reqID_SDP = " + requestId);
+
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setInt(1, requestId);
             statement.execute();
@@ -123,6 +127,7 @@ public class SQLiteDao {
                 throw new SQLException("connection is null");
 
 //            Statement statement = connection.createStatement();
+            log.info("select name from templates");
             String query = "select name from templates";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.execute();
@@ -145,6 +150,7 @@ public class SQLiteDao {
                 throw new SQLException("connection is null");
 
 //            Statement statement = connection.createStatement();
+            log.info("update requestFromSDP set customerReaction = " + reaction + " , where id = " + id);
             String query = "update requestFromSDP set customerReaction = ? where id = ?";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setInt(1, reaction);
@@ -155,7 +161,7 @@ public class SQLiteDao {
         }
     }
 
-    public void update_callCustomer(int id) throws Exception {
+    public void update_callCustomer(int id, int callCustomer) throws Exception {
         try {
             ArrayList<HashMap<String, String>> list = new ArrayList();
             if (connection == null)
@@ -165,8 +171,10 @@ public class SQLiteDao {
 
 //            Statement statement = connection.createStatement();
             String query = "update requestFromSDP set callCustomer = ? where id = ?";
+            log.info("update requestFromSDP set callCustomer = " + callCustomer + " , where id = " + id);
+
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setInt(1, 1);
+            statement.setInt(1, callCustomer);
             statement.setInt(2, id);
             statement.execute();
         } catch (Exception e) {

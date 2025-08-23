@@ -32,7 +32,7 @@ public class RespinaService {
             if (canChangeStatus) {
                 log.info("Changing Request Status");
                 SdpAddRequestService service = new SdpAddRequestService();
-                Response response = service.putCallSdpUpdateStatusAfterCalling(String.valueOf(requestID), 1);
+                Response response = service.putCallSdpUpdate(String.valueOf(requestID), 1);
             } else log.info("can't Changing Request Status");
             return true;
         } catch (Exception e) {
@@ -42,6 +42,7 @@ public class RespinaService {
     }
 
     public boolean callCustomer(int requestID) {
+        log.info("callCustomer requestID: {}", requestID);
         SQLiteDao sqLiteDao = new SQLiteDao();
         try {
             ArrayList<HashMap<String, String>> requestId = sqLiteDao.findRequestId(requestID);
@@ -49,7 +50,7 @@ public class RespinaService {
                 String mobileNo = requestId.get(0).get("MOBILENO");
                 Telsi telsi = new Telsi();
                 String telsiResult = telsi.callTelsi(mobileNo);
-                sqLiteDao.update_callCustomer(requestID);
+                sqLiteDao.update_callCustomer(requestID, 1);
                 return true;
             } else {
                 log.info("no request id in this request found!");
@@ -57,6 +58,11 @@ public class RespinaService {
             }
         } catch (Exception e) {
             log.error(e.toString());
+            try {
+                sqLiteDao.update_callCustomer(requestID, -1);
+            } catch (Exception ex) {
+                log.error("sqLiteDao.update_callCustomer({},-1):{}", requestID, ex.toString());
+            }
             return false;
         }
     }
@@ -79,7 +85,8 @@ public class RespinaService {
         sqLiteDao.updateCalledFromTelsi(id, customerReaction.getReaction());
         if (customerReaction.getReaction() == 1) {
             SdpAddRequestService service = new SdpAddRequestService();
-            Response response = service.putCallSdpUpdateStatusAfterCalling(reqID_SDP, 2);
+            Response response = service.putCallSdpUpdate(reqID_SDP, 3);
+            response = service.putCallSdpUpdate(reqID_SDP, 2);
         }
     }
 }
