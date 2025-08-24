@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.nor.sdpplugin.model.*;
+import com.nor.sdpplugin.other.PersianDateTimeUtil;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -26,7 +27,11 @@ public class SdpAddRequestService {
             statusModel = serviceDeskPlus.getStatusNameForCalling();
         else if (type == 2)
             statusModel = serviceDeskPlus.getStatusNameForClosing();
-        else if (type == 3)
+        else if (type == 3) {
+            String str = "پیرو تماس خودکار، با توجه به اطلاع مشترک از موضوع قطعی و با تایید ایشان،";
+            str = str + " " + "در تاریخ:" + " " + PersianDateTimeUtil.getDate();
+            str = str + " " + "و ساعت:" + " " + PersianDateTimeUtil.getTime();
+            str = str + " " + "تیکت بسته شد";
             workLog = " {\n" +
                     "  \"worklog\": {\n" +
                     "    \"include_nonoperational_hours\": true,\n" +
@@ -37,9 +42,10 @@ public class SdpAddRequestService {
                     "      \"hours\": \"1\",\n" +
                     "      \"minutes\": \"0\"\n" +
                     "    },\n" +
-                    "    \"description\": \"پیرو تماس خودکار، با توجه به اطلاع مشترک از موضوع قطعی و با تایید ایشان، تیکت بسته شد.\"\n" +
+                    "    \"description\": \"" + str + "\"\n" +
                     "  }\n" +
                     "}";
+        }
         RequestForUpdate requestForUpdate = new RequestForUpdate();
 //        requestForUpdate.setRequester(new Requester(id));
         requestForUpdate.setStatus(statusModel);
