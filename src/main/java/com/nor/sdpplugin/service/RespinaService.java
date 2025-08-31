@@ -83,10 +83,12 @@ public class RespinaService {
             return;
         }
         sqLiteDao.updateCalledFromTelsi(id, customerReaction.getReaction());
-        if (customerReaction.getReaction() == 1) {
-            SdpAddRequestService service = new SdpAddRequestService();
-            Response response = service.putCallSdpUpdate(reqID_SDP, 3);
+        SdpAddRequestService service = new SdpAddRequestService();
+        Response response = null;
+        if (customerReaction.getReaction() == 1)
             response = service.putCallSdpUpdate(reqID_SDP, 2);
-        }
+        else if (customerReaction.getReaction() == 2)
+            response = service.putCallSdpUpdate(reqID_SDP, 3);
+        log.info(response.toString());
     }
 }
