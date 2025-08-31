@@ -41,19 +41,23 @@ public class SQLiteDao {
                 connection = getConnection(url);
             if (connection == null)
                 throw new SQLException("connection is null");
+            try {
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(query);
+                int columnsCount = resultSet.getMetaData().getColumnCount();
 
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(query);
-            int columnsCount = resultSet.getMetaData().getColumnCount();
-
-            while (resultSet.next()) {
-                HashMap<String, String> tmpStr = new HashMap();
-                for (int i = 1; i <= columnsCount; i++) {
-                    tmpStr.put(resultSet.getMetaData().getColumnName(i).toUpperCase(), resultSet.getString(i));
+                while (resultSet.next()) {
+                    HashMap<String, String> tmpStr = new HashMap();
+                    for (int i = 1; i <= columnsCount; i++) {
+                        tmpStr.put(resultSet.getMetaData().getColumnName(i).toUpperCase(), resultSet.getString(i));
+                    }
+                    list.add(tmpStr);
                 }
-                list.add(tmpStr);
+                return list;
+            } finally {
+                connection.close();
+                connection = null;
             }
-            return list;
         } catch (Exception e) {
             throw new Exception(e.toString());
         }
@@ -67,23 +71,29 @@ public class SQLiteDao {
             if (connection == null)
                 throw new SQLException("connection is null");
 
-//            Statement statement = connection.createStatement();
-            String query = "select * from requestFromSDP where mobileNo = ? and customerReaction is null and callCustomer is null";
-            log.info("select * from requestFromSDP where mobileNo = " + mobileNo + " and customerReaction is null and callCustomer is null");
+            try {
 
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, mobileNo);
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            int columnsCount = resultSet.getMetaData().getColumnCount();
-            while (resultSet.next()) {
-                HashMap<String, String> tmpStr = new HashMap();
-                for (int i = 1; i <= columnsCount; i++) {
-                    tmpStr.put(resultSet.getMetaData().getColumnName(i).toUpperCase(), resultSet.getString(i));
+//            Statement statement = connection.createStatement();
+                String query = "select * from requestFromSDP where mobileNo = ? and customerReaction is null and callCustomer is null";
+                log.info("select * from requestFromSDP where mobileNo = " + mobileNo + " and customerReaction is null and callCustomer is null");
+
+                PreparedStatement statement = connection.prepareStatement(query);
+                statement.setString(1, mobileNo);
+                statement.execute();
+                ResultSet resultSet = statement.getResultSet();
+                int columnsCount = resultSet.getMetaData().getColumnCount();
+                while (resultSet.next()) {
+                    HashMap<String, String> tmpStr = new HashMap();
+                    for (int i = 1; i <= columnsCount; i++) {
+                        tmpStr.put(resultSet.getMetaData().getColumnName(i).toUpperCase(), resultSet.getString(i));
+                    }
+                    list.add(tmpStr);
                 }
-                list.add(tmpStr);
+                return list;
+            } finally {
+                connection.close();
+                connection = null;
             }
-            return list;
         } catch (Exception e) {
             throw new Exception(e.toString());
         }
@@ -96,23 +106,27 @@ public class SQLiteDao {
                 connection = getConnection(url);
             if (connection == null)
                 throw new SQLException("connection is null");
-
+            try {
 //            Statement statement = connection.createStatement();
-            String query = "select * from requestFromSDP where reqID_SDP = ?";
-            log.info("select * from requestFromSDP where reqID_SDP = " + requestId);
+                String query = "select * from requestFromSDP where reqID_SDP = ?";
+                log.info("select * from requestFromSDP where reqID_SDP = " + requestId);
 
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setInt(1, requestId);
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            int columnsCount = resultSet.getMetaData().getColumnCount();
-            while (resultSet.next()) {
-                HashMap<String, String> tmpStr = new HashMap();
-                for (int i = 1; i <= columnsCount; i++)
-                    tmpStr.put(resultSet.getMetaData().getColumnName(i).toUpperCase(), resultSet.getString(i));
-                list.add(tmpStr);
+                PreparedStatement statement = connection.prepareStatement(query);
+                statement.setInt(1, requestId);
+                statement.execute();
+                ResultSet resultSet = statement.getResultSet();
+                int columnsCount = resultSet.getMetaData().getColumnCount();
+                while (resultSet.next()) {
+                    HashMap<String, String> tmpStr = new HashMap();
+                    for (int i = 1; i <= columnsCount; i++)
+                        tmpStr.put(resultSet.getMetaData().getColumnName(i).toUpperCase(), resultSet.getString(i));
+                    list.add(tmpStr);
+                }
+                return list;
+            } finally {
+                connection.close();
+                connection = null;
             }
-            return list;
         } catch (Exception e) {
             throw new Exception(e.toString());
         }
@@ -125,17 +139,28 @@ public class SQLiteDao {
                 connection = getConnection(url);
             if (connection == null)
                 throw new SQLException("connection is null");
-
+            try {
 //            Statement statement = connection.createStatement();
-            log.info("select name from templates");
-            String query = "select name from templates";
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            while (resultSet.next()) {
-                return resultSet.getString(1).equals(str);
+                log.info("select name from templates");
+                String query = "select name from templates";
+                PreparedStatement statement = null;
+                ResultSet resultSet = null;
+                try {
+                    statement = connection.prepareStatement(query);
+                    statement.execute();
+                    resultSet = statement.getResultSet();
+                    while (resultSet.next())
+                        if (resultSet.getString(1).equals(str))
+                            return true;
+                } finally {
+                    if (statement != null) statement.close();
+                    if (resultSet != null) resultSet.close();
+                }
+                return false;
+            } finally {
+                connection.close();
+                connection = null;
             }
-            return false;
         } catch (Exception e) {
             throw new Exception(e.toString());
         }
@@ -148,14 +173,19 @@ public class SQLiteDao {
                 connection = getConnection(url);
             if (connection == null)
                 throw new SQLException("connection is null");
+            try {
 
 //            Statement statement = connection.createStatement();
-            log.info("update requestFromSDP set customerReaction = " + reaction + " , where id = " + id);
-            String query = "update requestFromSDP set customerReaction = ? where id = ?";
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setInt(1, reaction);
-            statement.setInt(2, id);
-            statement.execute();
+                log.info("update requestFromSDP set customerReaction = " + reaction + " , where id = " + id);
+                String query = "update requestFromSDP set customerReaction = ? where id = ?";
+                PreparedStatement statement = connection.prepareStatement(query);
+                statement.setInt(1, reaction);
+                statement.setInt(2, id);
+                statement.execute();
+            } finally {
+                connection.close();
+                connection = null;
+            }
         } catch (Exception e) {
             throw new Exception(e.toString());
         }
@@ -168,27 +198,32 @@ public class SQLiteDao {
                 connection = getConnection(url);
             if (connection == null)
                 throw new SQLException("connection is null");
+            try {
 
 //            Statement statement = connection.createStatement();
-            String query = "update requestFromSDP set callCustomer = ? where id = ?";
-            log.info("update requestFromSDP set callCustomer = " + callCustomer + " , where id = " + id);
+                String query = "update requestFromSDP set callCustomer = ? where id = ?";
+                log.info("update requestFromSDP set callCustomer = " + callCustomer + " , where id = " + id);
 
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setInt(1, callCustomer);
-            statement.setInt(2, id);
-            statement.execute();
+                PreparedStatement statement = connection.prepareStatement(query);
+                statement.setInt(1, callCustomer);
+                statement.setInt(2, id);
+                statement.execute();
+            } finally {
+                connection.close();
+                connection = null;
+            }
         } catch (Exception e) {
             throw new Exception(e.toString());
         }
     }
 
     public void updateTemplateChanged(int reqID_SDP, String requesterMobile, int templateChanged) throws Exception {
+        ArrayList<HashMap<String, String>> list = new ArrayList();
+        if (connection == null)
+            connection = getConnection(url);
+        if (connection == null)
+            throw new SQLException("connection is null");
         try {
-            ArrayList<HashMap<String, String>> list = new ArrayList();
-            if (connection == null)
-                connection = getConnection(url);
-            if (connection == null)
-                throw new SQLException("connection is null");
             log.info("update requestFromSDP set templateChanged = " + templateChanged + " , mobileNo = " + requesterMobile + " where reqID_SDP = " + reqID_SDP);
             String query = "update requestFromSDP set templateChanged = ? , mobileNo = ? where reqID_SDP = ?";
             PreparedStatement statement = connection.prepareStatement(query);
@@ -196,8 +231,9 @@ public class SQLiteDao {
             statement.setString(2, requesterMobile);
             statement.setInt(3, reqID_SDP);
             statement.execute();
-        } catch (Exception e) {
-            throw new Exception(e.toString());
+        } finally {
+            connection.close();
+            connection = null;
         }
     }
 
@@ -207,9 +243,15 @@ public class SQLiteDao {
                 connection = getConnection(url);
             if (connection == null)
                 throw new SQLException("connection is null");
-            Statement statement = connection.createStatement();
-            boolean execute = statement.execute(query);
-            return String.valueOf(execute);
+            try {
+
+                Statement statement = connection.createStatement();
+                boolean execute = statement.execute(query);
+                return String.valueOf(execute);
+            } finally {
+                connection.close();
+                connection = null;
+            }
         } catch (Exception e) {
             log.error(e.toString());
             return e.toString();
@@ -223,13 +265,18 @@ public class SQLiteDao {
         if (connection == null)
             throw new SQLException("connection is null");
 //            Statement statement = connection.createStatement();
-        log.info("insert into requestFromSDP(reqID_SDP,mobileNo, inoutJSON,templateChanged)values(" + reqID + "," + MobileNo + ", ? ," + templateChanged + ")");
-        PreparedStatement statement = connection.prepareStatement("insert into requestFromSDP(reqID_SDP,mobileNo, inoutJSON,templateChanged)values(?,?,?,?)");
-        statement.setInt(1, reqID);
-        statement.setString(2, MobileNo);
-        statement.setString(3, json);
-        statement.setInt(4, templateChanged);
-        statement.execute();
+        try {
+            log.info("insert into requestFromSDP(reqID_SDP,mobileNo, inoutJSON,templateChanged)values(" + reqID + "," + MobileNo + ", ? ," + templateChanged + ")");
+            PreparedStatement statement = connection.prepareStatement("insert into requestFromSDP(reqID_SDP,mobileNo, inoutJSON,templateChanged)values(?,?,?,?)");
+            statement.setInt(1, reqID);
+            statement.setString(2, MobileNo);
+            statement.setString(3, json);
+            statement.setInt(4, templateChanged);
+            statement.execute();
+        } finally {
+            connection.close();
+            connection = null;
+        }
 //        } catch (Exception e) {
 //            log.error(e.toString());
 //        }
@@ -240,11 +287,17 @@ public class SQLiteDao {
             connection = getConnection(url);
         if (connection == null)
             throw new SQLException("connection is null");
+        try {
+
 //            Statement statement = connection.createStatement();
-        PreparedStatement statement = connection.prepareStatement("insert into requestFromTelsi(phone, reaction)values(?,?)");
-        statement.setString(1, phone);
-        statement.setInt(2, reaction);
-        statement.execute();
+            PreparedStatement statement = connection.prepareStatement("insert into requestFromTelsi(phone, reaction)values(?,?)");
+            statement.setString(1, phone);
+            statement.setInt(2, reaction);
+            statement.execute();
+        } finally {
+            connection.close();
+            connection = null;
+        }
     }
 
     public void insertLog(String reqID_SDP, String reqID_JIRA, String inoutJSON, String outputJSON) {
@@ -253,14 +306,19 @@ public class SQLiteDao {
                 connection = getConnection(url);
             if (connection == null)
                 throw new SQLException("connection is null");
+            try {
 
-            String sql = "insert into main.request(reqID_SDP,reqID_JIRA,inoutJSON,outputJSON)VALUES(?,?,?,?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, reqID_SDP);
-            statement.setString(2, reqID_JIRA);
-            statement.setString(3, inoutJSON);
-            statement.setString(4, outputJSON);
-            statement.execute();
+                String sql = "insert into main.request(reqID_SDP,reqID_JIRA,inoutJSON,outputJSON)VALUES(?,?,?,?)";
+                PreparedStatement statement = connection.prepareStatement(sql);
+                statement.setString(1, reqID_SDP);
+                statement.setString(2, reqID_JIRA);
+                statement.setString(3, inoutJSON);
+                statement.setString(4, outputJSON);
+                statement.execute();
+            } finally {
+                connection.close();
+                connection = null;
+            }
         } catch (SQLException e) {
             System.out.println(e);
 //            System.exit(1);
@@ -275,14 +333,19 @@ public class SQLiteDao {
                 connection = getConnection(url);
             if (connection == null)
                 throw new SQLException("connection is null");
+            try {
 
-            String sql = "insert into main.request(reqID_SDP,reqID_JIRA,inoutJSON,outputJSON)VALUES(?,?,?,?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, reqID_SDP);
-            statement.setString(2, reqID_JIRA);
-            statement.setString(3, inoutJSON);
-            statement.setString(4, outputJSON);
-            statement.execute();
+                String sql = "insert into main.request(reqID_SDP,reqID_JIRA,inoutJSON,outputJSON)VALUES(?,?,?,?)";
+                PreparedStatement statement = connection.prepareStatement(sql);
+                statement.setString(1, reqID_SDP);
+                statement.setString(2, reqID_JIRA);
+                statement.setString(3, inoutJSON);
+                statement.setString(4, outputJSON);
+                statement.execute();
+            } finally {
+                connection.close();
+                connection = null;
+            }
         } catch (SQLException e) {
             System.out.println(e);
 //            System.exit(1);
@@ -297,11 +360,16 @@ public class SQLiteDao {
                 connection = getConnection(url);
             if (connection == null)
                 throw new SQLException("connection is null");
-            String sql = "update request set jiraUpdateCount = jiraUpdateCount + 1 where reqID_JIRA = ? and reqID_SDP = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, reqID_JIRA);
-            statement.setString(2, reqID_SDP);
-            statement.execute();
+            try {
+                String sql = "update request set jiraUpdateCount = jiraUpdateCount + 1 where reqID_JIRA = ? and reqID_SDP = ?";
+                PreparedStatement statement = connection.prepareStatement(sql);
+                statement.setString(1, reqID_JIRA);
+                statement.setString(2, reqID_SDP);
+                statement.execute();
+            } finally {
+                connection.close();
+                connection = null;
+            }
         } catch (SQLException e) {
             System.out.println(e);
 //            System.exit(1);
@@ -316,11 +384,16 @@ public class SQLiteDao {
                 connection = getConnection(url);
             if (connection == null)
                 throw new SQLException("connection is null");
-            String sql = "update request set sdpUpdateCount = sdpUpdateCount + 1 where reqID_JIRA = ? and reqID_SDP = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, reqID_JIRA);
-            statement.setString(2, reqID_SDP);
-            statement.execute();
+            try {
+                String sql = "update request set sdpUpdateCount = sdpUpdateCount + 1 where reqID_JIRA = ? and reqID_SDP = ?";
+                PreparedStatement statement = connection.prepareStatement(sql);
+                statement.setString(1, reqID_JIRA);
+                statement.setString(2, reqID_SDP);
+                statement.execute();
+            } finally {
+                connection.close();
+                connection = null;
+            }
         } catch (SQLException e) {
             System.out.println(e);
 //            System.exit(1);

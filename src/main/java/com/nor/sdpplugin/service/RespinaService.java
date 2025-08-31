@@ -16,7 +16,7 @@ public class RespinaService {
         try {
             ArrayList<HashMap<String, String>> requestId = sqLiteDao.findRequestId(requestID);
             if (requestId != null && !requestId.isEmpty()) {
-                log.info("already created a request with id {}", requestID);
+                log.info("already Inserted a request with id {} into database", requestID);
                 if (sqLiteDao.templateExistInDB(templateName)) {
                     sqLiteDao.updateTemplateChanged(requestID, requesterMobile, 1);
                     canChangeStatus = true;
