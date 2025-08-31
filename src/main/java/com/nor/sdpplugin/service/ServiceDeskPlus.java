@@ -24,6 +24,8 @@ public class ServiceDeskPlus {
     private StatusModel statusNameForCalling;
     @Getter
     private StatusModel statusNameForClosing;
+    @Getter
+    private StatusModel statusNameForReferredToAnExpert;
 
     public ServiceDeskPlus() {
 //        serviceAddress = "http://localhost:8080";
@@ -45,8 +47,9 @@ public class ServiceDeskPlus {
             authtoken = list.get(0).get("AUTHTOKEN");
             statusNameForCalling = new StatusModel(list.get(0).get("STATUSNAMEFORCALLING"));
             statusNameForClosing = new StatusModel(list.get(0).get("STATUSNAMEFORCLOSING"));
+            statusNameForReferredToAnExpert = new StatusModel(list.get(0).get("STATUSNAMEFORREFERREDTOANEXPERT"));
         } catch (Exception e) {
-            System.out.println(e);
+            logger.error(e.toString());
             System.exit(1);
         }
     }

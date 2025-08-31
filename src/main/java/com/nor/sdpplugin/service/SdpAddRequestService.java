@@ -27,6 +27,8 @@ public class SdpAddRequestService {
             statusModel = serviceDeskPlus.getStatusNameForCalling();
         else if (type == 2)
             statusModel = serviceDeskPlus.getStatusNameForClosing();
+        else if (type == 4)
+            statusModel = serviceDeskPlus.getStatusNameForReferredToAnExpert();
         else if (type == 3) {
             String str = "پیرو تماس خودکار، با توجه به اطلاع مشترک از موضوع قطعی و با تایید ایشان،";
             str = str + " " + "در تاریخ:" + " " + PersianDateTimeUtil.getDate();

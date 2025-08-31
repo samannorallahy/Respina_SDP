@@ -85,10 +85,11 @@ public class RespinaService {
         sqLiteDao.updateCalledFromTelsi(id, customerReaction.getReaction());
         SdpAddRequestService service = new SdpAddRequestService();
         Response response = null;
-        if (customerReaction.getReaction() == 1)
-            response = service.putCallSdpUpdate(reqID_SDP, 2);
-        else if (customerReaction.getReaction() == 2)
-            response = service.putCallSdpUpdate(reqID_SDP, 3);
+        if (customerReaction.getReaction() == 1) {
+            response = service.putCallSdpUpdate(reqID_SDP, 3); // add work log
+            response = service.putCallSdpUpdate(reqID_SDP, 2); // egdam tavasot moshtari
+        }        else if (customerReaction.getReaction() == 2)
+            response = service.putCallSdpUpdate(reqID_SDP, 4); // erja be karshenas
         log.info(response.toString());
     }
 }
