@@ -1,9 +1,7 @@
 package com.nor.sdpplugin.controller;
 
-import com.nor.sdpplugin.dataBase.SQLiteDao;
 import com.nor.sdpplugin.model.*;
 import com.nor.sdpplugin.service.RespinaService;
-import com.nor.sdpplugin.service.SdpAddRequestService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -14,9 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api")
@@ -74,18 +69,25 @@ public class RespinaController {
     public ResponseEntity<ResponseModel> callCustomer(@RequestBody String str, HttpServletRequest httpServletRequest) {
         logger.info("Calling api/v1/call-customer service from ip address: {}\t\tJson:{}", httpServletRequest.getRemoteAddr(), str);
         ResponseModel responseModel = new ResponseModel();
-
         JSONObject obj = new JSONObject(str);
-        int requestID;
+        int requestID, requesterId;
         if (obj.has("requestID"))
             requestID = Integer.parseInt(obj.getString("requestID"));
         else {
             logger.error("there is no requestID in this request");
             return new ResponseEntity<>(responseModel, HttpStatus.BAD_REQUEST);
         }
-
+        if (obj.has("requesterId"))
+            requesterId = Integer.parseInt(obj.getString("requesterId"));
+        else {
+            logger.error("there is no requesterId in this request");
+            return new ResponseEntity<>(responseModel, HttpStatus.BAD_REQUEST);
+        }
         RespinaService service = new RespinaService();
-        boolean b = service.callCustomer(requestID);
+        boolean b;
+        boolean userAllowedTime = service.getUserAllowedTime(requesterId);
+        if (userAllowedTime)
+            b = service.callCustomer(requestID);
 
         return new ResponseEntity<>(responseModel, HttpStatus.OK);
     }

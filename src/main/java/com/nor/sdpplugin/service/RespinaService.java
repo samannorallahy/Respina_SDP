@@ -4,7 +4,9 @@ import com.nor.sdpplugin.dataBase.SQLiteDao;
 import com.nor.sdpplugin.model.CustomerReaction;
 import com.nor.sdpplugin.model.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -53,7 +55,7 @@ public class RespinaService {
                 sqLiteDao.update_callCustomer(requestID, 1);
                 return true;
             } else {
-                log.info("no request id in this request found!");
+                log.info("no request id found to get it's mobileNo and call it!");
                 return false;
             }
         } catch (Exception e) {
@@ -63,6 +65,45 @@ public class RespinaService {
             } catch (Exception ex) {
                 log.error("sqLiteDao.update_callCustomer({},-1):{}", requestID, ex.toString());
             }
+            return false;
+        }
+    }
+
+    public boolean getUserAllowedTime(int requesterId) {
+        log.info("getting user allowed time to make a call");
+        try {
+            Response userData = new ServiceDeskPlus().getUserData(requesterId);
+            JSONObject obj = new JSONObject(userData.getBody());
+
+            if (obj.has("user")) {
+                JSONObject userObj = new JSONObject(obj.getJSONObject("user").toString());
+                if (userObj.has("user_udf_fields")) {
+                    JSONObject user_udf_fieldsObj = new JSONObject(userObj.getJSONObject("user_udf_fields").toString());
+                    String userUdfField = new ServiceDeskPlus().getUser_udf_field();
+                    if (user_udf_fieldsObj.has(userUdfField)) {
+                        String allowedTime = "";
+                        boolean allTime = user_udf_fieldsObj.isNull(userUdfField);
+                        if (allTime)
+                            allowedTime = "0-23";
+                        else
+                            allowedTime = user_udf_fieldsObj.getString(userUdfField);
+                        log.info("allowed time is: {}", allTime ? "allTime" : allowedTime);
+
+                        int startHour = Integer.parseInt(allowedTime.split("-")[0]);
+                        int endHour = Integer.parseInt(allowedTime.split("-")[1]);
+                        LocalTime start = LocalTime.of(startHour, 59);
+                        LocalTime end = LocalTime.of(endHour, 59);
+                        LocalTime now = LocalTime.now();
+                        boolean isInRange = !now.isBefore(start) && !now.isAfter(end);
+                        log.info("current time is: {}", now);
+                        log.info("is in ranged time to call: {}", isInRange);
+
+                        return isInRange;
+                    } else return false;
+                } else return false;
+            } else return false;
+        } catch (Exception e) {
+            log.error(e.toString());
             return false;
         }
     }
@@ -88,7 +129,7 @@ public class RespinaService {
         if (customerReaction.getReaction() == 1) {
             response = service.putCallSdpUpdate(reqID_SDP, 3); // add work log
             response = service.putCallSdpUpdate(reqID_SDP, 2); // egdam tavasot moshtari
-        }        else if (customerReaction.getReaction() == 2)
+        } else if (customerReaction.getReaction() == 2)
             response = service.putCallSdpUpdate(reqID_SDP, 4); // erja be karshenas
         log.info(response.toString());
     }
