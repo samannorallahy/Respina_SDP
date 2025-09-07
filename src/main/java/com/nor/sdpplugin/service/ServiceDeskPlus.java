@@ -27,6 +27,8 @@ public class ServiceDeskPlus {
     @Getter
     private StatusModel statusNameForReferredToAnExpert;
     @Getter
+    private StatusModel statusNameForNotAllowedInThisTime;
+    @Getter
     private String user_udf_field;
 
     public ServiceDeskPlus() {
@@ -50,6 +52,7 @@ public class ServiceDeskPlus {
             statusNameForCalling = new StatusModel(list.get(0).get("STATUSNAMEFORCALLING"));
             statusNameForClosing = new StatusModel(list.get(0).get("STATUSNAMEFORCLOSING"));
             statusNameForReferredToAnExpert = new StatusModel(list.get(0).get("STATUSNAMEFORREFERREDTOANEXPERT"));
+            statusNameForNotAllowedInThisTime = new StatusModel(list.get(0).get("STATUSNAMEFORNOTALLOWEDINTHISTIME"));
             user_udf_field = list.get(0).get("USER_UDF_FIELD");
         } catch (Exception e) {
             logger.error(e.toString());
@@ -131,7 +134,7 @@ public class ServiceDeskPlus {
         return new Response(response.code(), outPut, "", null, "", "", "");
     }
 
-    public Response putCallSdpUpdateStatus(String id, String input_data, int type) throws IOException {
+    public Response putCallSdpUpdateStatus(String id, String input_data) throws IOException {
         String outPut = "";
 
 //        OkHttpClient client = new OkHttpClient().newBuilder()
@@ -150,18 +153,46 @@ public class ServiceDeskPlus {
                 .addFormDataPart("input_data", input_data)
                 .build();
         String addres = serviceAddress + "/api/v3/requests/" + id;
-        if (type == 3)
-            addres = addres + "/worklogs";
         Request request = new Request.Builder()
                 .url(addres)
-                .method(type == 3 ? "POST" : "PUT", body)
+                .method("PUT", body)
                 .addHeader("authtoken", authtoken)
                 .addHeader("Accept", "application/vnd.manageengine.sdp.v3+json")
                 .build();
-        logger.info("Calling {} service: {} ,\t input_data:{}", addres, type == 3 ? "POST" : "PUT", input_data);
+        logger.info("Calling {} service: {} ,\t input_data:{}", addres, "PUT", input_data);
         okhttp3.Response response = client.newCall(request).execute();
 
 //        if (response.code() == 200)
+        if (response.body() != null)
+            outPut = response.body().string();
+
+        logger.info("Response code:{} ,\tresponse body:{}  ,\tresponse headers:{}", response.code(), outPut, response.headers().toString().replace("\n", ",\t"));
+        return new Response(response.code(), outPut, "", null, "", "", "");
+    }
+
+    public Response putCallSdpUpdateWorklogs(String id, String input_data) throws IOException {
+        String outPut = "";
+
+        OkHttpClient client = getUnsafeOkHttpClient().newBuilder()
+                .connectTimeout(2, TimeUnit.MINUTES)
+                .writeTimeout(2, TimeUnit.MINUTES)
+                .readTimeout(2, TimeUnit.MINUTES)
+                .build();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("input_data", input_data)
+                .build();
+        String address = serviceAddress + "/api/v3/requests/" + id + "/worklogs";
+        Request request = new Request.Builder()
+                .url(address)
+                .method("POST", body)
+                .addHeader("authtoken", authtoken)
+                .addHeader("Accept", "application/vnd.manageengine.sdp.v3+json")
+                .build();
+        logger.info("Calling {} service: {} ,\t input_data:{}", address, "POST", input_data);
+        okhttp3.Response response = client.newCall(request).execute();
+
         if (response.body() != null)
             outPut = response.body().string();
 

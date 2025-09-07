@@ -6,6 +6,7 @@ import com.nor.sdpplugin.model.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,13 +85,13 @@ public class RespinaService {
                         String allowedTime = "";
                         boolean allTime = user_udf_fieldsObj.isNull(userUdfField);
                         if (allTime)
-                            allowedTime = "0-23";
+                            allowedTime = "0-24";
                         else
                             allowedTime = user_udf_fieldsObj.getString(userUdfField);
                         log.info("allowed time is: {}", allTime ? "allTime" : allowedTime);
 
                         int startHour = Integer.parseInt(allowedTime.split("-")[0]);
-                        int endHour = Integer.parseInt(allowedTime.split("-")[1]);
+                        int endHour = Integer.parseInt(allowedTime.split("-")[1]) - 1;// mines 1 needed to make it correct hour
                         LocalTime start = LocalTime.of(startHour, 59);
                         LocalTime end = LocalTime.of(endHour, 59);
                         LocalTime now = LocalTime.now();
@@ -127,10 +128,23 @@ public class RespinaService {
         SdpAddRequestService service = new SdpAddRequestService();
         Response response = null;
         if (customerReaction.getReaction() == 1) {
-            response = service.putCallSdpUpdate(reqID_SDP, 3); // add work log
-            response = service.putCallSdpUpdate(reqID_SDP, 2); // egdam tavasot moshtari
+            service.putCallSdpAddWorklogs(reqID_SDP, 1); // add work log for closing
+            service.putCallSdpUpdate(reqID_SDP, 2); // egdam tavasot moshtari
         } else if (customerReaction.getReaction() == 2)
             response = service.putCallSdpUpdate(reqID_SDP, 4); // erja be karshenas
         log.info(response.toString());
     }
+
+    public void notAllowedToCall(int reqID_SDP) {
+        SdpAddRequestService service = new SdpAddRequestService();
+        Response response = null;
+        try {
+            response = service.putCallSdpAddWorklogs(String.valueOf(reqID_SDP), 2);
+            response = service.putCallSdpUpdate(String.valueOf(reqID_SDP), 3);
+        } catch (IOException e) {
+            log.error(e.toString());
+        }
+        log.info(response.toString());
+    }
+
 }

@@ -84,11 +84,12 @@ public class RespinaController {
             return new ResponseEntity<>(responseModel, HttpStatus.BAD_REQUEST);
         }
         RespinaService service = new RespinaService();
-        boolean b;
         boolean userAllowedTime = service.getUserAllowedTime(requesterId);
         if (userAllowedTime)
-            b = service.callCustomer(requestID);
-
+            service.callCustomer(requestID);
+        else {
+            service.notAllowedToCall(requestID);
+        }
         return new ResponseEntity<>(responseModel, HttpStatus.OK);
     }
 
