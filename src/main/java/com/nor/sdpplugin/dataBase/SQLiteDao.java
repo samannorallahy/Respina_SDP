@@ -166,7 +166,7 @@ public class SQLiteDao {
         }
     }
 
-    public void updateCalledFromTelsi(int id, int reaction) throws Exception {
+    public void updateCustomerReaction(int id, int reaction) throws Exception {
         try {
             ArrayList<HashMap<String, String>> list = new ArrayList();
             if (connection == null)

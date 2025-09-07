@@ -6,7 +6,6 @@ import com.nor.sdpplugin.model.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,7 +110,6 @@ public class RespinaService {
 
     public void customerReaction(CustomerReaction customerReaction) throws Exception {
         SQLiteDao sqLiteDao = new SQLiteDao();
-
         sqLiteDao.insertIntoRequestsFromTelsi(customerReaction.getMobile(), customerReaction.getReaction());
         String reqID_SDP;
         int id;
@@ -124,7 +122,7 @@ public class RespinaService {
             log.info("there is no requestID in requests with mobile: {} and customerReaction: null", customerReaction.getMobile());
             return;
         }
-        sqLiteDao.updateCalledFromTelsi(id, customerReaction.getReaction());
+        sqLiteDao.updateCustomerReaction(id, customerReaction.getReaction());
         SdpAddRequestService service = new SdpAddRequestService();
         Response response = null;
         if (customerReaction.getReaction() == 1) {
@@ -138,10 +136,12 @@ public class RespinaService {
     public void notAllowedToCall(int reqID_SDP) {
         SdpAddRequestService service = new SdpAddRequestService();
         Response response = null;
+        SQLiteDao sqLiteDao = new SQLiteDao();
         try {
+            sqLiteDao.update_callCustomer(reqID_SDP, 0);
             response = service.putCallSdpAddWorklogs(String.valueOf(reqID_SDP), 2);
             response = service.putCallSdpUpdate(String.valueOf(reqID_SDP), 3);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error(e.toString());
         }
         log.info(response.toString());
