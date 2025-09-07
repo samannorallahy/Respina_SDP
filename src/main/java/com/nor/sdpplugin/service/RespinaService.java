@@ -113,7 +113,7 @@ public class RespinaService {
         sqLiteDao.insertIntoRequestsFromTelsi(customerReaction.getMobile(), customerReaction.getReaction());
         String reqID_SDP;
         int id;
-        ArrayList<HashMap<String, String>> records = sqLiteDao.findMobileNumber(customerReaction.getMobile());
+        ArrayList<HashMap<String, String>> records = sqLiteDao.findRequestForCustomerReaction(customerReaction.getMobile());
         if (!records.isEmpty()) {
             reqID_SDP = records.get(0).get("REQID_SDP");
             id = Integer.parseInt(records.get(0).get("ID"));

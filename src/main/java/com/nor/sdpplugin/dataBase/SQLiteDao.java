@@ -63,7 +63,7 @@ public class SQLiteDao {
         }
     }
 
-    public ArrayList<HashMap<String, String>> findMobileNumber(String mobileNo) throws Exception {
+    public ArrayList<HashMap<String, String>> findRequestForCustomerReaction(String mobileNo) throws Exception {
         try {
             ArrayList<HashMap<String, String>> list = new ArrayList();
             if (connection == null)
@@ -74,8 +74,11 @@ public class SQLiteDao {
             try {
 
 //            Statement statement = connection.createStatement();
-                String query = "select * from requestFromSDP where mobileNo = ? and customerReaction is null and callCustomer is null";
-                log.info("select * from requestFromSDP where mobileNo = " + mobileNo + " and customerReaction is null and callCustomer is null");
+//                String query = "select * from requestFromSDP where mobileNo = ? and customerReaction is null and callCustomer is null";
+//                log.info("select * from requestFromSDP where mobileNo = " + mobileNo + " and customerReaction is null and callCustomer is null");
+
+                String query = "select * from requestFromSDP where mobileNo = ? and customerReaction is null";
+                log.info("select * from requestFromSDP where mobileNo = " + mobileNo + " and customerReaction is null");
 
                 PreparedStatement statement = connection.prepareStatement(query);
                 statement.setString(1, mobileNo);
@@ -187,11 +190,12 @@ public class SQLiteDao {
                 connection = null;
             }
         } catch (Exception e) {
+            log.error(e.toString());
             throw new Exception(e.toString());
         }
     }
 
-    public void update_callCustomer(int id, int callCustomer) throws Exception {
+    public void update_callCustomer(int reqID_SDP, int callCustomer) throws Exception {
         try {
             ArrayList<HashMap<String, String>> list = new ArrayList();
             if (connection == null)
@@ -201,18 +205,20 @@ public class SQLiteDao {
             try {
 
 //            Statement statement = connection.createStatement();
-                String query = "update requestFromSDP set callCustomer = ? where id = ?";
-                log.info("update requestFromSDP set callCustomer = " + callCustomer + " , where id = " + id);
+                String query = "update requestFromSDP set callCustomer = ? where reqID_SDP = ?";
+                log.info("update requestFromSDP set callCustomer = " + callCustomer + " where reqID_SDP = " + reqID_SDP);
 
                 PreparedStatement statement = connection.prepareStatement(query);
                 statement.setInt(1, callCustomer);
-                statement.setInt(2, id);
-                statement.execute();
+                statement.setInt(2, reqID_SDP);
+                boolean execute = statement.execute();
+                log.info("update result is: " + execute);
             } finally {
                 connection.close();
                 connection = null;
             }
         } catch (Exception e) {
+            log.error(e.toString());
             throw new Exception(e.toString());
         }
     }

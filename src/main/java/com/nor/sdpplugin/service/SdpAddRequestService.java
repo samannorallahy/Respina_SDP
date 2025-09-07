@@ -14,7 +14,7 @@ import java.io.IOException;
 public class SdpAddRequestService {
     /**
      * @param id   requestID
-     * @param type 1: assign to user - 2: closed - 3: NOT AllowedInThisTime
+     * @param type 1: automatic Call - 2: closed - 3: NOT AllowedInThisTime
      * @return
      * @throws IOException
      */
