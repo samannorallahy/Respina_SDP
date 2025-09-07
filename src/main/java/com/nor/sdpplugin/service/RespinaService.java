@@ -91,7 +91,7 @@ public class RespinaService {
 
                         int startHour = Integer.parseInt(allowedTime.split("-")[0]);
                         int endHour = Integer.parseInt(allowedTime.split("-")[1]) - 1;// mines 1 needed to make it correct hour
-                        LocalTime start = LocalTime.of(startHour, 59);
+                        LocalTime start = LocalTime.of(startHour, 0);
                         LocalTime end = LocalTime.of(endHour, 59);
                         LocalTime now = LocalTime.now();
                         boolean isInRange = !now.isBefore(start) && !now.isAfter(end);
