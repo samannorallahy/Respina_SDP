@@ -29,7 +29,11 @@ public class ServiceDeskPlus {
     @Getter
     private StatusModel statusNameForNotAllowedInThisTime;
     @Getter
+    private StatusModel statusNameForNotCalled;
+    @Getter
     private String user_udf_field;
+    @Getter
+    private int SchedulerDelayTime;
 
     public ServiceDeskPlus() {
 //        serviceAddress = "http://localhost:8080";
@@ -53,6 +57,8 @@ public class ServiceDeskPlus {
             statusNameForClosing = new StatusModel(list.get(0).get("STATUSNAMEFORCLOSING"));
             statusNameForReferredToAnExpert = new StatusModel(list.get(0).get("STATUSNAMEFORREFERREDTOANEXPERT"));
             statusNameForNotAllowedInThisTime = new StatusModel(list.get(0).get("STATUSNAMEFORNOTALLOWEDINTHISTIME"));
+            statusNameForNotCalled = new StatusModel(list.get(0).get("STATUSNAMEFORNOTCALLED"));
+            SchedulerDelayTime = Integer.parseInt(list.get(0).get("SCHEDULERDELAYTIME"));
             user_udf_field = list.get(0).get("USER_UDF_FIELD");
         } catch (Exception e) {
             logger.error(e.toString());

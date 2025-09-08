@@ -14,11 +14,11 @@ import java.io.IOException;
 public class SdpAddRequestService {
     /**
      * @param id   requestID
-     * @param type 1: automatic Call - 2: closed - 3: NOT AllowedInThisTime
+     * @param type 1: automatic Call - 2: closed - 3: NOT AllowedInThisTime, 5: NotCalled
      * @return
      * @throws IOException
      */
-    public Response putCallSdpUpdate(String id, int type) throws IOException {
+    public Response putCallSdpUpdateStatus(String id, int type) throws IOException {
         Response sdpResponse = new Response();
         ServiceDeskPlus serviceDeskPlus = new ServiceDeskPlus();
         UpdateRequest request = new UpdateRequest();
@@ -31,6 +31,8 @@ public class SdpAddRequestService {
             statusModel = serviceDeskPlus.getStatusNameForNotAllowedInThisTime();
         else if (type == 4)
             statusModel = serviceDeskPlus.getStatusNameForReferredToAnExpert();
+        else if (type == 5)
+            statusModel = serviceDeskPlus.getStatusNameForNotCalled();
         RequestForUpdate requestForUpdate = new RequestForUpdate();
         requestForUpdate.setStatus(statusModel);
         request.setRequestForUpdate(requestForUpdate);
@@ -51,7 +53,7 @@ public class SdpAddRequestService {
 
     /**
      * @param id   requestID
-     * @param type 1: closed, 2: Not AllowedToCall in this Time
+     * @param type 1: closed, 2: Not AllowedToCall in this Time, 3: No Answer From Telsi
      * @return
      * @throws IOException
      */
@@ -82,12 +84,22 @@ public class SdpAddRequestService {
             str = "پیرو تماس خودکار، با توجه به اطلاع مشترک از موضوع قطعی و با تایید ایشان،";
             str = str + " " + "در تاریخ:" + " " + PersianDateTimeUtil.getDate();
             str = str + " " + "و ساعت:" + " " + PersianDateTimeUtil.getTime();
-            str = str + " " + "تیکت بسته شد";
+            str = str + " " + "درخواست بسته شد";
         } else if (type == 2) {
             str = "به علت عدم امکان تماس در خارج از محدوده تعریف شده،";
             str = str + " " + "در تاریخ:" + " " + PersianDateTimeUtil.getDate();
             str = str + " " + "و ساعت:" + " " + PersianDateTimeUtil.getTime();
-            str = str + " " + "تیکت به کارشناس ارجاع شد";
+            str = str + " " + "درخواست به کارشناس ارجاع شد";
+        } else if (type == 3) {
+            str = "به علت عدم امکان برقراری تماس با مشترک";
+            str = str + " " + "در تاریخ:" + " " + PersianDateTimeUtil.getDate();
+            str = str + " " + "و ساعت:" + " " + PersianDateTimeUtil.getTime();
+            str = str + " " + "درخواست به کارشناس ارجاع شد";
+        } else if (type == 4) {
+            str = "ارجاع به صف تماس کارشناسان بنابر درخواست مشترک";
+            str = str + " " + "در تاریخ:" + " " + PersianDateTimeUtil.getDate();
+            str = str + " " + "و ساعت:" + " " + PersianDateTimeUtil.getTime();
+//            str = str + " " + "درخواست به کارشناس ارجاع شد";
         }
         workLog = " {\n" +
                 "  \"worklog\": {\n" +

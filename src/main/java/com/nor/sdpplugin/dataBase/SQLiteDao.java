@@ -59,6 +59,7 @@ public class SQLiteDao {
                 connection = null;
             }
         } catch (Exception e) {
+            log.error(e.toString());
             throw new Exception(e.toString());
         }
     }
@@ -98,7 +99,57 @@ public class SQLiteDao {
                 connection = null;
             }
         } catch (Exception e) {
+            log.error(e.toString());
             throw new Exception(e.toString());
+        }
+    }
+
+    public boolean isCustomerReactionStillNull(int reqID_SDP) {
+        try {
+            if (connection == null)
+                connection = getConnection(url);
+            if (connection == null)
+                throw new SQLException("connection is null");
+            try {
+                String query = "select * from requestFromSDP where reqID_SDP = ? and customerReaction is null";
+                log.info("select * from requestFromSDP where reqID_SDP = '" + reqID_SDP + "' and customerReaction is null");
+                PreparedStatement statement = connection.prepareStatement(query);
+                statement.setString(1, String.valueOf(reqID_SDP));
+                statement.execute();
+                ResultSet resultSet = statement.getResultSet();
+                if (resultSet.next())
+                    return true;
+                return false;
+            } finally {
+                connection.close();
+                connection = null;
+            }
+        } catch (Exception e) {
+            log.error(e.toString());
+            return false;
+        }
+    }
+
+    public boolean updateCustomerReactionWhenThereIsNoReaction(int reqID_SDP) {
+        try {
+            if (connection == null)
+                connection = getConnection(url);
+            if (connection == null)
+                throw new SQLException("connection is null");
+            try {
+                log.info("update requestFromSDP set customerReaction = 0 where reqID_SDP = " + reqID_SDP);
+                String query = "update requestFromSDP set customerReaction = 0 where reqID_SDP = ?";
+                PreparedStatement statement = connection.prepareStatement(query);
+                statement.setString(1, String.valueOf(reqID_SDP));
+                statement.execute();
+                return true;
+            } finally {
+                connection.close();
+                connection = null;
+            }
+        } catch (Exception e) {
+            log.error(e.toString());
+            return false;
         }
     }
 
@@ -131,6 +182,7 @@ public class SQLiteDao {
                 connection = null;
             }
         } catch (Exception e) {
+            log.error(e.toString());
             throw new Exception(e.toString());
         }
     }
@@ -212,7 +264,7 @@ public class SQLiteDao {
                 statement.setInt(1, callCustomer);
                 statement.setInt(2, reqID_SDP);
                 boolean execute = statement.execute();
-                log.info("update result is: " + execute);
+//                log.info("update result is: " + execute);
             } finally {
                 connection.close();
                 connection = null;

@@ -34,7 +34,7 @@ public class RespinaService {
             if (canChangeStatus) {
                 log.info("Changing Request Status");
                 SdpAddRequestService service = new SdpAddRequestService();
-                Response response = service.putCallSdpUpdate(String.valueOf(requestID), 1);
+                Response response = service.putCallSdpUpdateStatus(String.valueOf(requestID), 1);
             } else log.info("can't Changing Request Status");
             return true;
         } catch (Exception e) {
@@ -53,6 +53,7 @@ public class RespinaService {
                 Telsi telsi = new Telsi();
                 String telsiResult = telsi.callTelsi(mobileNo);
                 sqLiteDao.update_callCustomer(requestID, 1);
+                new DelayedActionService().scheduleAction(requestID, new ServiceDeskPlus().getSchedulerDelayTime());
                 return true;
             } else {
                 log.info("no request id found to get it's mobileNo and call it!");
@@ -126,10 +127,11 @@ public class RespinaService {
         SdpAddRequestService service = new SdpAddRequestService();
         Response response = null;
         if (customerReaction.getReaction() == 1) {
-            service.putCallSdpAddWorklogs(reqID_SDP, 1); // add work log for closing
-            service.putCallSdpUpdate(reqID_SDP, 2); // egdam tavasot moshtari
+            response = service.putCallSdpAddWorklogs(reqID_SDP, 1); // add work log for closing
+            response = service.putCallSdpUpdateStatus(reqID_SDP, 2); // egdam tavasot moshtari
         } else if (customerReaction.getReaction() == 2)
-            response = service.putCallSdpUpdate(reqID_SDP, 4); // erja be karshenas
+            response = service.putCallSdpAddWorklogs(reqID_SDP, 4); // erja be karshenas
+            response = service.putCallSdpUpdateStatus(reqID_SDP, 4); // erja be karshenas
         log.info(response.toString());
     }
 
@@ -140,7 +142,7 @@ public class RespinaService {
         try {
             sqLiteDao.update_callCustomer(reqID_SDP, 0);
             response = service.putCallSdpAddWorklogs(String.valueOf(reqID_SDP), 2);
-            response = service.putCallSdpUpdate(String.valueOf(reqID_SDP), 3);
+            response = service.putCallSdpUpdateStatus(String.valueOf(reqID_SDP), 3);
         } catch (Exception e) {
             log.error(e.toString());
         }
