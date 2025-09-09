@@ -141,7 +141,7 @@ public class RespinaService {
         SQLiteDao sqLiteDao = new SQLiteDao();
         try {
             sqLiteDao.update_callCustomer(reqID_SDP, 0);
-            sqLiteDao.updateCustomerReaction(reqID_SDP, 0);
+            sqLiteDao.updateCustomerReactionWhenThereIsNoReaction(reqID_SDP);
             response = service.putCallSdpAddWorklogs(String.valueOf(reqID_SDP), 2);
             response = service.putCallSdpUpdateStatus(String.valueOf(reqID_SDP), 3);
         } catch (Exception e) {
