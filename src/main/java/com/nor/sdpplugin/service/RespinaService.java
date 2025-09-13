@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 @Slf4j
 public class RespinaService {
-    public boolean insertIntoRequests(int requestID, String templateName, String requesterMobile, String inputJson) {
+    public boolean insertIntoRequests(int requestID, String templateName, String requesterMobile, String inputJson, boolean templateAndRequesterChanged) {
         SQLiteDao sqLiteDao = new SQLiteDao();
         boolean canChangeStatus = false;
         try {
@@ -26,7 +26,7 @@ public class RespinaService {
             } else {
                 if (templateName.isEmpty()) {
                     sqLiteDao.insertIntoRequestsFromSDP(requestID, requesterMobile, inputJson, 0);
-                } else {
+                } else if (templateAndRequesterChanged) {
                     sqLiteDao.insertIntoRequestsFromSDP(requestID, requesterMobile, inputJson, 1);
                     canChangeStatus = true;
                 }

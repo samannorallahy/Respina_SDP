@@ -21,7 +21,7 @@ public class RespinaController {
 
     @PostMapping("/add-to-requests")
     public ResponseEntity<String> addToRequests(@RequestBody String str, HttpServletRequest httpServletRequest) {
-        logger.info("Calling api/v1/callCenter service from ip address: {}\t\tJson:{}", httpServletRequest.getRemoteAddr(), str);
+        logger.info("Calling api/v1/add-to-requests service from ip address: {}\t\tJson:{}", httpServletRequest.getRemoteAddr(), str);
         String templateName, requesterMobile;
         int requestID;
         try {
@@ -58,7 +58,53 @@ public class RespinaController {
 //            System.out.println("requestID: " + requestID);
 
             RespinaService service = new RespinaService();
-            boolean insert = service.insertIntoRequests(requestID, templateName, requesterMobile, str);
+            boolean insert = service.insertIntoRequests(requestID, templateName, requesterMobile, str, true);
+            return new ResponseEntity<>("Done", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/template-changed")
+    public ResponseEntity<String> templateChanged(@RequestBody String str, HttpServletRequest httpServletRequest) {
+        logger.info("Calling api/v1/template-changed service from ip address: {}\t\tJson:{}", httpServletRequest.getRemoteAddr(), str);
+        String templateName, requesterMobile;
+        int requestID;
+        try {
+            JSONObject obj = new JSONObject(str);
+            if (obj.has("requestID"))
+                requestID = Integer.parseInt(obj.getString("requestID"));
+            else {
+                logger.error("there is no requestID in this request");
+                return new ResponseEntity<>("there is no requestID in this request", HttpStatus.BAD_REQUEST);
+            }
+            if (obj.has("template")) {
+                templateName = obj.getString("template");
+            } else {
+                logger.error("your request doesn't have template");
+                return new ResponseEntity<>("your request doesn't have template", HttpStatus.BAD_REQUEST);
+            }
+
+            if (obj.has("requester")) {
+                JSONObject requesterObj = new JSONObject(obj.getString("requester"));
+                if (requesterObj.has("mobile"))
+                    requesterMobile = requesterObj.getString("mobile");
+                else {
+                    logger.error("your request doesn't have requester.mobile");
+                    return new ResponseEntity<>("your request doesn't have mobile", HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                logger.error("your request doesn't have requester");
+                return new ResponseEntity<>("your request doesn't have requester", HttpStatus.BAD_REQUEST);
+            }
+
+//            System.out.println("Template Name: " + templateName);
+//            System.out.println("Requester mobile: " + requesterMobile);
+////        System.out.println("Requester Name: " + requesterObj.getString("name"));
+//            System.out.println("requestID: " + requestID);
+
+            RespinaService service = new RespinaService();
+            boolean insert = service.insertIntoRequests(requestID, templateName, requesterMobile, str, false);
             return new ResponseEntity<>("Done", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);

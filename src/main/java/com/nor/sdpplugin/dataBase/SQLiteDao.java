@@ -1,5 +1,6 @@
 package com.nor.sdpplugin.dataBase;
 
+import com.nor.sdpplugin.other.PersianDateTimeUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.*;
@@ -346,11 +347,10 @@ public class SQLiteDao {
         if (connection == null)
             throw new SQLException("connection is null");
         try {
-
-//            Statement statement = connection.createStatement();
-            PreparedStatement statement = connection.prepareStatement("insert into requestFromTelsi(phone, reaction)values(?,?)");
+            PreparedStatement statement = connection.prepareStatement("insert into requestFromTelsi(phone, reaction, timex)values(?,?,?)");
             statement.setString(1, phone);
             statement.setInt(2, reaction);
+            statement.setString(3, PersianDateTimeUtil.getDateTime());
             statement.execute();
         } finally {
             connection.close();
