@@ -129,9 +129,10 @@ public class RespinaService {
         if (customerReaction.getReaction() == 1) {
             response = service.putCallSdpAddWorklogs(reqID_SDP, 1); // add work log for closing
             response = service.putCallSdpUpdateStatus(reqID_SDP, 2); // egdam tavasot moshtari
-        } else if (customerReaction.getReaction() == 2)
+        } else if (customerReaction.getReaction() == 2) {
             response = service.putCallSdpAddWorklogs(reqID_SDP, 4); // erja be karshenas
-        response = service.putCallSdpUpdateStatus(reqID_SDP, 4); // erja be karshenas
+            response = service.putCallSdpUpdateStatus(reqID_SDP, 4); // erja be karshenas
+        }
         log.info(response.toString());
     }
 
