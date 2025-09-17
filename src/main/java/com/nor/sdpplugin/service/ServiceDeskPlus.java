@@ -33,6 +33,8 @@ public class ServiceDeskPlus {
     @Getter
     private String user_udf_field;
     @Getter
+    private String allowedTime;
+    @Getter
     private int SchedulerDelayTime;
 
     public ServiceDeskPlus() {
@@ -60,6 +62,7 @@ public class ServiceDeskPlus {
             statusNameForNotCalled = new StatusModel(list.get(0).get("STATUSNAMEFORNOTCALLED"));
             SchedulerDelayTime = Integer.parseInt(list.get(0).get("SCHEDULERDELAYTIME"));
             user_udf_field = list.get(0).get("USER_UDF_FIELD");
+            allowedTime = list.get(0).get("ALLOWEDTIME");
         } catch (Exception e) {
             logger.error(e.toString());
             System.exit(1);

@@ -85,7 +85,7 @@ public class RespinaService {
                         String allowedTime = "";
                         boolean allTime = user_udf_fieldsObj.isNull(userUdfField);
                         if (allTime)
-                            allowedTime = "0-24";
+                            allowedTime = new ServiceDeskPlus().getAllowedTime();
                         else
                             allowedTime = user_udf_fieldsObj.getString(userUdfField);
                         log.info("allowed time is: {}", allTime ? "allTime" : allowedTime);
@@ -100,9 +100,18 @@ public class RespinaService {
                         log.info("is in ranged time to call: {}", isInRange);
 
                         return isInRange;
-                    } else return false;
-                } else return false;
-            } else return false;
+                    } else {
+                        log.error("there is no \"{}\" object in the JSON", userUdfField);
+                        return false;
+                    }
+                } else {
+                    log.error("there is no \"user_udf_fields\" object in the JSON");
+                    return false;
+                }
+            } else {
+                log.error("there is no \"user\" object in the JSON");
+                return false;
+            }
         } catch (Exception e) {
             log.error(e.toString());
             return false;
