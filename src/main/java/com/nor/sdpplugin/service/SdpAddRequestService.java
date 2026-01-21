@@ -105,7 +105,7 @@ public class SdpAddRequestService {
                 "  \"worklog\": {\n" +
                 "    \"include_nonoperational_hours\": true,\n" +
                 "    \"owner\": {\n" +
-                "      \"name\": \"administrator\"\n" +
+                "      \"name\": \"Medanet Project\"\n" +
                 "    },\n" +
                 "    \"time_spent\": {\n" +
                 "      \"hours\": \"1\",\n" +
